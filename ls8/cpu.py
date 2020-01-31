@@ -67,7 +67,11 @@ class CPU:
             MUL: self.handle_mul,
             CALL: self.handle_call,
             RET: self.handle_ret,
-            ADD: self.handle_add
+            ADD: self.handle_add,
+            CMP: self.handle_cmp,
+            JMP: self.handle_jmp,
+            JEQ: self.handle_jeq,
+            JNE: self.handle_jne
         }
 
     def load(self, file_to_run):
@@ -104,6 +108,13 @@ class CPU:
             self.reg[reg_a] /= self.reg[reg_b]
         elif op == "MOD":
             self.reg[reg_a] %= self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.fl = 1
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.fl = 2
+            elif self.reg[reg_a] < self.reg[reg_b]:
+                self.fl = 4
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -199,6 +210,29 @@ class CPU:
         self.pc = self.ram[self.reg[SP]]
         # Move the stack pointer back where it was after the address is popped off
         self.reg[SP] += 1
+
+    def handle_cmp(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu("CMP", operand_a, operand_b)
+
+    def handle_jmp(self):
+        address = self.ram_read(self.pc + 1)
+        self.pc = self.reg[address]
+
+    def handle_jeq(self):
+        address = self.ram_read(self.pc + 1)
+        if self.fl == 1:
+            self.pc = self.reg[address]
+        else:
+            self.pc += 2
+
+    def handle_jne(self):
+        address = self.ram_read(self.pc + 1)
+        if self.fl != 1:
+            self.pc = self.reg[address]
+        else:
+            self.pc += 2
 
     def run(self):
         """Run the CPU."""
