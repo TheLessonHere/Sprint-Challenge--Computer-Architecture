@@ -115,9 +115,9 @@ class CPU:
         elif op == "NOT":
             self.reg[reg_a] = ~self.reg[reg_a]
         elif op == "SHL":
-            self.reg[reg_a] << self.reg[reg_b]
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
         elif op == "SHR":
-            self.reg[reg_a] >> self.reg[reg_b]
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
         elif op == "MOD":
             if self.reg[reg_b] != 0:
                 self.reg[reg_a] %= self.reg[reg_b]
